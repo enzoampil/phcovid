@@ -20,7 +20,15 @@ RENAME_DICT = {
     'attributes.petsa': 'date',
 }
 
-def get_phcovid(url=URL, rename_dict=RENAME_DICT):
+VAL_ALIAS = ['For validation', 'for validation', 'for validation', 'For Validation'] #, 
+NONE_ALIAS = ['none', '']
+
+def get_cases(url=URL, rename_dict=RENAME_DICT, val_alias=VAL_ALIAS, none_alias=NONE_ALIAS):
     raw = json.loads(urlopen(url).read())
     df = json_normalize(raw['features'])
-    return df[rename_dict.keys()].rename(columns=rename_dict)
+    df_renamed = df[rename_dict.keys()].rename(columns=rename_dict)
+    df_aliased = df_renamed.replace(val_alias, 'for_validation').replace(none_alias, 'none')
+    return df_aliased
+
+if __name__ == '__main__':
+    print(get_cases().head())
