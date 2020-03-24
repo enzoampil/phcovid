@@ -1,2 +1,2 @@
-from phcovid import *
-from phcovid_plot import *
+from .phcovid import *
+from .phcovid_plot import *
