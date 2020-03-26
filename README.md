@@ -1,6 +1,6 @@
 # phcovid
 ## Get clean PH COVID data in only two lines of code!
-Source: PH DOH data shared by this [blog post](https://www.facebook.com/notes/wilson-chua/working-with-doh-covid-data/2868993263159446/)
+Source: PH DOH data shared in this [blog post](https://www.facebook.com/notes/wilson-chua/working-with-doh-covid-data/2868993263159446/)
 
 ```
 from phcovid import get_cases
