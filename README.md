@@ -3,13 +3,15 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg )](https://raw.githubusercontent.com/enzoampil/phcovid/master/LICENSE)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
 
+## Get PH COVID data in only two lines of code!
+Source: PH DOH data shared in this [blog post](https://www.facebook.com/notes/wilson-chua/working-with-doh-covid-data/2868993263159446/)
+
 ## Setup
 ```
 pip install phcovid
 ```
-## Get PH COVID data in only two lines of code!
-Source: PH DOH data shared in this [blog post](https://www.facebook.com/notes/wilson-chua/working-with-doh-covid-data/2868993263159446/)
 
+## Get PH COVID Data
 ```
 from phcovid import get_cases
 df = get_cases()
