@@ -4,7 +4,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 
 
-def get_case_plot(df, date_col="confirmation_date"):
+def get_case_plot(df, date_col="confirmation_date", start_date=None):
     """
     This function a.) plots the growth of cases in the given df
     and prints the date of first and latest confirmed case.
@@ -15,22 +15,18 @@ def get_case_plot(df, date_col="confirmation_date"):
         column name of date attribute
         current decision is to use column 'confirmation date.'
         since column 'date' has more missing values. 
+    start_date:
+        start plot after this date
     """
-
-    def get_date_part(d):
-        # Function removes empty/invalid dates and returns date_time dtype for valid dates.
-        # Once data cleaning in get_cases() is finalized, we can depracate this fucntion and section
-        try:
-            date = pd.to_datetime(d)
-            return date
-        except ValueError:
-            return np.nan
 
     case_dates = df[date_col]
     case_count = pd.DataFrame(case_dates[~case_dates.isnull()].unique())
     case_count.rename(columns={0: "date"}, inplace=True)
     # sort values on date
     case_count = case_count.sort_values("date", ascending = True)
+
+    if (start_date!=None):
+        case_count = case_count[case_count["date"]>=start_date].reset_index(drop=True)
 
     for row in case_count.itertuples():
         current_date = getattr(row, "date")
@@ -47,6 +43,7 @@ def get_case_plot(df, date_col="confirmation_date"):
     # convert dates column to date time for better plot representation
     case_count["date"] = case_count["date"].apply(lambda x: pd.to_datetime(x))
     plt.figure(figsize=(10, 6))
+    plt.title(f"Confirmed Cases from {first_case} to {latest_case}")
 
     # plot
-    plt.plot_date(matplotlib.dates.date2num(case_count["date"]), case_count["case_count"])
+    plt.plot_date(matplotlib.dates.date2num(case_count["date"]), case_count["case_count"], linestyle='solid')
