@@ -46,4 +46,4 @@ def get_case_plot(df, date_col="confirmation_date", start_date=None):
     plt.title(f"Confirmed Cases from {first_case} to {latest_case}")
 
     # plot
-    plt.plot_date(matplotlib.dates.date2num(case_count["date"]), case_count["case_count"], linestyle='solid')
+    plt.plot_date(case_count["date"], case_count["case_count"], linestyle='solid')
