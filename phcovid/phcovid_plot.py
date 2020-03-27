@@ -25,7 +25,7 @@ def get_case_plot(df, date_col="confirmation_date", start_date=None):
     # sort values on date
     case_count = case_count.sort_values("date", ascending = True)
 
-    if (start_date!=None):
+    if start_date:
         case_count = case_count[case_count["date"]>=start_date].reset_index(drop=True)
 
     for row in case_count.itertuples():

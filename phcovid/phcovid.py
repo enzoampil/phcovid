@@ -31,6 +31,8 @@ VAL_ALIAS = [
 ]  # ,
 NONE_ALIAS = ["none", ""]
 
+DATE_COLS = ["confirmation_date", "date"]
+
 
 def extract_contact_info(travel_history):
     """
@@ -76,8 +78,10 @@ def get_cases(
     df_aliased[["contacts", "num_contacts"]] = extract_contact_info(
         df_aliased.travel_history
     )
-    df_aliased["confirmation_date"] = df_aliased["confirmation_date"].apply(lambda x: fix_dates(x))
-    df_aliased["date"] = df_aliased["date"].apply(lambda x: fix_dates(x))
+    
+    for col in DATE_COLS:
+        df_aliased[col] = df_aliased[col].apply(lambda x: fix_dates(x))
+
     return df_aliased
 
 
