@@ -3,6 +3,7 @@ import json
 from pandas.io.json import json_normalize
 import re
 import pandas as pd
+import numpy as np
 
 URL = "https://services5.arcgis.com/mnYJ21GiFTR97WFg/arcgis/rest/services/PH_masterlist/FeatureServer/0/query?f=json&where=1%3D1&returnGeometry=true&spatialRel=esriSpatialRelIntersects&outFields=%2A&outSR=102100&cacheHint=true&fbclid=IwAR1nboPFyAVQ5sgE0QmE31B9ZqveQcB3tUAlegIqUoqkV8057zWGHF2RsRU"
 RENAME_DICT = {
@@ -54,6 +55,11 @@ def extract_contact_info(travel_history):
     contact_info = pd.DataFrame({"contacts": contacts, "num_contacts": num_contacts})
     return contact_info
 
+def fix_dates(d):
+    try:
+        return pd.to_datetime(d)
+    except ValueError:
+        return np.nan
 
 def get_cases(
     url=URL, rename_dict=RENAME_DICT, val_alias=VAL_ALIAS, none_alias=NONE_ALIAS
@@ -70,6 +76,8 @@ def get_cases(
     df_aliased[["contacts", "num_contacts"]] = extract_contact_info(
         df_aliased.travel_history
     )
+    df_aliased["confirmation_date"] = df_aliased["confirmation_date"].apply(lambda x: fix_dates(x))
+    df_aliased["date"] = df_aliased["date"].apply(lambda x: fix_dates(x))
     return df_aliased
 
 
