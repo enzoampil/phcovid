@@ -51,7 +51,7 @@ def get_cases(
     """
     raw = json.loads(urlopen(url).read())
     df = json_normalize(raw["features"])
-    df_renamed = df[list(rename_dict.keys())].rename(columns=rename_dict)
+    df_renamed = df[rename_dict.keys()].rename(columns=rename_dict)
     df_aliased = df_renamed.replace(val_alias, "for_validation").replace(
         none_alias, "none"
     )
