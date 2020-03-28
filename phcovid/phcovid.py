@@ -70,8 +70,12 @@ def get_cases(
         df_aliased.travel_history
     )
 
-    df_aliased["case_no_num"] = df_aliased["case_no"].apply(lambda x: x.split("H")[-1]).astype(int)
-    df_aliased["contacts_num"] = df_aliased["contacts"].apply(lambda x: parse_numeric(x))
+    df_aliased["case_no_num"] = (
+        df_aliased["case_no"].apply(lambda x: x.split("H")[-1]).astype(int)
+    )
+    df_aliased["contacts_num"] = df_aliased["contacts"].apply(
+        lambda x: parse_numeric(x)
+    )
 
     for col in DATE_COLS:
         df_aliased[col] = df_aliased[col].apply(lambda x: fix_dates(x))
