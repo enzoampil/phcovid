@@ -41,6 +41,17 @@ def fix_dates(d):
         return np.nan
 
 
+def parse_numeric(s):
+    """
+    For use in graph analysis, 
+    function returns list with [PHX] converted to numeric [X]
+    """
+    case_list = []
+    for i in s:
+        case_list = case_list + [i.split("H")[-1]]
+    return case_list
+
+
 def get_cases(
     rename_dict=RENAME_DICT, val_alias=VAL_ALIAS, none_alias=NONE_ALIAS
 ):
@@ -49,12 +60,19 @@ def get_cases(
     """
     raw = extract_arcgis_data()
     df = json_normalize(raw["features"])
-    df_renamed = df[rename_dict.keys()].rename(columns=rename_dict)
+    df_renamed = df.rename(columns=rename_dict)
     df_aliased = df_renamed.replace(val_alias, "for_validation").replace(
         none_alias, "none"
     )
     df_aliased[["contacts", "num_contacts"]] = extract_contact_info(
         df_aliased.travel_history
+    )
+
+    df_aliased["case_no_num"] = (
+        df_aliased["case_no"].apply(lambda x: x.split("H")[-1]).astype(int)
+    )
+    df_aliased["contacts_num"] = df_aliased["contacts"].apply(
+        lambda x: parse_numeric(x)
     )
 
     for col in DATE_COLS:
