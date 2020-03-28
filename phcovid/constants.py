@@ -29,6 +29,8 @@ RENAME_DICT = {
     "attributes.petsa": "date",
 }
 
+DATE_COLS = ["confirmation_date", "date"]
+
 VAL_ALIAS = [
     "For validation",
     "for validation",

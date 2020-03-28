@@ -9,8 +9,7 @@ from .constants import URL
 from .constants import NONE_ALIAS
 from .constants import VAL_ALIAS
 from .constants import RENAME_DICT
-
-DATE_COLS = ["confirmation_date", "date"]
+from .constants import DATE_COLS
 
 
 def extract_contact_info(travel_history):
@@ -36,11 +35,13 @@ def extract_contact_info(travel_history):
     contact_info = pd.DataFrame({"contacts": contacts, "num_contacts": num_contacts})
     return contact_info
 
+
 def fix_dates(d):
     try:
         return pd.to_datetime(d)
     except ValueError:
         return np.nan
+
 
 def get_cases(
     url=URL, rename_dict=RENAME_DICT, val_alias=VAL_ALIAS, none_alias=NONE_ALIAS
@@ -57,7 +58,7 @@ def get_cases(
     df_aliased[["contacts", "num_contacts"]] = extract_contact_info(
         df_aliased.travel_history
     )
-    
+
     for col in DATE_COLS:
         df_aliased[col] = df_aliased[col].apply(lambda x: fix_dates(x))
 
