@@ -1,15 +1,13 @@
-from urllib.request import urlopen
-import json
 from pandas.io.json import json_normalize
 import re
 import pandas as pd
 import numpy as np
 
-from .constants import URL
 from .constants import NONE_ALIAS
 from .constants import VAL_ALIAS
 from .constants import RENAME_DICT
 from .constants import DATE_COLS
+from .data_extractor import extract_arcgis_data
 
 
 def extract_contact_info(travel_history):
@@ -55,12 +53,12 @@ def parse_numeric(s):
 
 
 def get_cases(
-    url=URL, rename_dict=RENAME_DICT, val_alias=VAL_ALIAS, none_alias=NONE_ALIAS
+    rename_dict=RENAME_DICT, val_alias=VAL_ALIAS, none_alias=NONE_ALIAS
 ):
     """
     Returns cleaned data from DOH COVID for PH (https://www.facebook.com/notes/wilson-chua/working-with-doh-covid-data/2868993263159446/)
     """
-    raw = json.loads(urlopen(url).read())
+    raw = extract_arcgis_data()
     df = json_normalize(raw["features"])
     df_renamed = df.rename(columns=rename_dict)
     df_aliased = df_renamed.replace(val_alias, "for_validation").replace(
