@@ -1,3 +1,5 @@
+import re
+
 URL = (
     "https://docs.google.com"
     "/spreadsheets/u/0/d"
@@ -21,6 +23,10 @@ def _extract_by_targets(headers, data, targets):
 
 
 def _clean_data_value(data):
+    if isinstance(data, str) and bool(re.match(r"PH\d+", data)):
+        case_no = data.split("PH")[-1]
+        return "".join(["PH", case_no.lstrip("0")])
+
     if data is None or data == "":
         return "none"
 
@@ -35,16 +41,17 @@ def _clean_html(soup_data=None, headers=None, valid_idx=[]):
         soup_data = [headers]
 
     rows = [row.find_all("td") for row in soup_data]
-    output = [
-        [
-            _clean_data_value(td.string)
-            for idx, td in enumerate(row)
-            # extract all if empty valid_idx; else only extract if in valid_idx
-            if not len(valid_idx) or idx in valid_idx
-        ]
-        for row in rows
-        if row[0].string is not None
-    ]
+    output = []
+    for row in rows:
+        if row[0].string is None:
+            continue
+
+        # extract all if empty valid_idx; else only extract if in valid_idx
+        if valid_idx == []:
+            output += [[_clean_data_value(td.string) for td in row]]
+            continue
+
+        output += [[_clean_data_value(row[idx].string) for idx in valid_idx]]
 
     if headers:
         return [o.lower() for o in output[-1]]
@@ -55,6 +62,7 @@ def _clean_html(soup_data=None, headers=None, valid_idx=[]):
 def extract_dsph_gsheet_data(target_columns=TARGET_COLUMNS):
     from urllib.request import urlopen
     from bs4 import BeautifulSoup
+
     gsheet_html = urlopen(URL).read()
     soup = BeautifulSoup(gsheet_html, features="html.parser")
 
@@ -64,10 +72,6 @@ def extract_dsph_gsheet_data(target_columns=TARGET_COLUMNS):
     # select table rows
     rows = soup.select("tbody > tr")
     headers = _clean_html(headers=rows[0])
-    data = _extract_by_targets(
-        headers,
-        rows[1:],
-        targets=target_columns
-    )
+    data = _extract_by_targets(headers, rows[1:], targets=target_columns)
 
     return data

@@ -8,13 +8,16 @@ from .constants import VAL_ALIAS
 from .constants import RENAME_DICT
 from .constants import DATE_COLS
 from .data_extractor import extract_arcgis_data
+from .data_extractor import extract_dsph_gsheet_data
 
 
 def extract_contact_info(travel_history):
     """
-    Returns a dataframe containing the direct contacts of each case, and the number of direct contacts
+    Returns a dataframe containing the direct contacts of each case,
+    and the number of direct contacts
     travel_history:
-        Iterable from which to parse contacts of the form PHX ('travel_history' column from get_cases())
+        Iterable from which to parse contacts of the form PHX
+        ('travel_history' column from get_cases())
     """
 
     def get_contacts(s):
@@ -30,7 +33,7 @@ def extract_contact_info(travel_history):
         contacts.append(contacts_)
         num_contacts.append(len(contacts_))
 
-    contact_info = pd.DataFrame({"contacts": contacts, "num_contacts": num_contacts})
+    contact_info = pd.DataFrame({"contacts": contacts, "num_contacts": num_contacts,})
     return contact_info
 
 
@@ -41,9 +44,22 @@ def fix_dates(d):
         return np.nan
 
 
+def attach_target(current, data, headers):
+    search_res = [d for d in data if current[headers[0]] == d[0]]
+    if not len(search_res):
+        # use data from original dataset if not none
+        if current[headers[1]]:
+            return current[headers[1]]
+
+        return "none"
+
+    # use data from supplement dataset
+    return search_res[-1][1]
+
+
 def parse_numeric(s):
     """
-    For use in graph analysis, 
+    For use in graph analysis,
     function returns list with [PHX] converted to numeric [X]
     """
     case_list = []
@@ -52,11 +68,30 @@ def parse_numeric(s):
     return case_list
 
 
-def get_cases(
-    rename_dict=RENAME_DICT, val_alias=VAL_ALIAS, none_alias=NONE_ALIAS
-):
+def attach_supplement_data(dataframe):
+    # change targets to extend the dataset
+    targets = [
+        "case no.",  # for row searching
+        "status",
+        "symptoms",
+    ]
+    missing = extract_dsph_gsheet_data(target_columns=targets)
+
+    for target in targets[1:]:
+        dataframe[target] = dataframe[["case_no", target]].apply(
+            lambda x: attach_target(
+                x,
+                [(d[0], d[targets.index(target)]) for d in missing],
+                ["case_no", target],
+            ),
+            axis=1,
+        )
+
+
+def get_cases(rename_dict=RENAME_DICT, val_alias=VAL_ALIAS, none_alias=NONE_ALIAS):
     """
-    Returns cleaned data from DOH COVID for PH (https://www.facebook.com/notes/wilson-chua/working-with-doh-covid-data/2868993263159446/)
+    Returns cleaned data from DOH COVID for PH
+    https://www.facebook.com/notes/wilson-chua/working-with-doh-covid-data/2868993263159446/
     """
     raw = extract_arcgis_data()
     df = json_normalize(raw["features"])
@@ -78,6 +113,7 @@ def get_cases(
     for col in DATE_COLS:
         df_aliased[col] = df_aliased[col].apply(lambda x: fix_dates(x))
 
+    attach_supplement_data(df_aliased)
     return df_aliased
 
 
