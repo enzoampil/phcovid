@@ -35,7 +35,7 @@ def get_case_graph(df, contact_col, case_no_col):
 
     return case_graph
 
-def get_network(df, contact_col = 'contacts_num', case_no_col = 'case_no_num', as_dict = False):
+def get_network(df, contact_col = 'contacts_num', case_no_col = 'case_no_num'):
     """
     Uses Depth First Search on the graph from get_contacts_graph
     and returns a dataframe listing all networks of known cases.
@@ -69,7 +69,6 @@ def get_network(df, contact_col = 'contacts_num', case_no_col = 'case_no_num', a
                     visited_pre[j] = visited[j]
                     case_network[network_cnt-1].append(j)
     
-    if as_dict:
-        return case_network
-    else:
-        return pd.DataFrame(case_network)
+    df_case_network = pd.DataFrame([i for i in case_network.items()], columns = ['network_no', 'network_cases'])
+    df_case_network['network_num_cases'] = df_case_network['network_cases'].apply(lambda x: len(x))
+    return df_case_network
