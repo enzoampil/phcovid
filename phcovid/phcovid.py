@@ -62,7 +62,7 @@ def get_cases(
     """
     raw = json.loads(urlopen(url).read())
     df = json_normalize(raw["features"])
-    df_renamed = df[rename_dict.keys()].rename(columns=rename_dict)
+    df_renamed = df.rename(columns=rename_dict)
     df_aliased = df_renamed.replace(val_alias, "for_validation").replace(
         none_alias, "none"
     )
@@ -70,8 +70,8 @@ def get_cases(
         df_aliased.travel_history
     )
 
-    df["case_no_num"] = df["case_no"].apply(lambda x: x.split("H")[-1]).astype(int)
-    df["contacts_num"] = df["contacts"].apply(lambda x: parse_numeric(x))
+    df_aliased["case_no_num"] = df_aliased["case_no"].apply(lambda x: x.split("H")[-1]).astype(int)
+    df_aliased["contacts_num"] = df_aliased["contacts"].apply(lambda x: parse_numeric(x))
 
     for col in DATE_COLS:
         df_aliased[col] = df_aliased[col].apply(lambda x: fix_dates(x))
