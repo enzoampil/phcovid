@@ -42,6 +42,7 @@ def fix_dates(d):
     except ValueError:
         return np.nan
 
+
 def parse_numeric(s):
     """
     For use in graph analysis, 
@@ -49,7 +50,7 @@ def parse_numeric(s):
     """
     case_list = []
     for i in s:
-        case_list = case_list + [i.split('H')[-1]]
+        case_list = case_list + [i.split("H")[-1]]
     return case_list
 
 
@@ -69,13 +70,11 @@ def get_cases(
         df_aliased.travel_history
     )
 
-    df['case_no_num'] = df['case_no'].apply(lambda x: x.split('H')[-1]).astype(int)
-    df['contacts_num'] = df['contacts'].apply(lambda x: parse_numeric(x))
+    df["case_no_num"] = df["case_no"].apply(lambda x: x.split("H")[-1]).astype(int)
+    df["contacts_num"] = df["contacts"].apply(lambda x: parse_numeric(x))
 
     for col in DATE_COLS:
         df_aliased[col] = df_aliased[col].apply(lambda x: fix_dates(x))
-    
-
 
     return df_aliased
 
