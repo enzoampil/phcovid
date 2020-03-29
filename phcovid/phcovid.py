@@ -7,6 +7,7 @@ from .constants import NONE_ALIAS
 from .constants import VAL_ALIAS
 from .constants import RENAME_DICT
 from .constants import DATE_COLS
+from .constants import DSPH_GSHEET_TARGETS
 from .data_extractor import extract_arcgis_data
 from .data_extractor import extract_dsph_gsheet_data
 
@@ -68,13 +69,7 @@ def parse_numeric(s):
     return case_list
 
 
-def attach_supplement_data(dataframe):
-    # change targets to extend the dataset
-    targets = [
-        "case no.",  # for row searching
-        "status",
-        "symptoms",
-    ]
+def attach_supplement_data(dataframe, targets=DSPH_GSHEET_TARGETS):
     missing = extract_dsph_gsheet_data(target_columns=targets)
 
     for target in targets[1:]:
