@@ -7,7 +7,6 @@ from .constants import NONE_ALIAS
 from .constants import VAL_ALIAS
 from .constants import RENAME_DICT
 from .constants import DATE_COLS
-from .constants import DSPH_GSHEET_TARGETS
 from .data_extractor import extract_arcgis_data
 from .data_extractor import extract_dsph_gsheet_data
 
@@ -69,11 +68,12 @@ def parse_numeric(s):
     return case_list
 
 
-def attach_supplement_data(dataframe, targets=DSPH_GSHEET_TARGETS):
+def extract_supplement_data(dataframe, targets):
     missing = extract_dsph_gsheet_data(target_columns=targets)
+    columns = {}
 
     for target in targets[1:]:
-        dataframe[target] = dataframe[["case_no", target]].apply(
+        columns[target] = dataframe[["case_no", target]].apply(
             lambda x: attach_target(
                 x,
                 [(d[0], d[targets.index(target)]) for d in missing],
@@ -81,6 +81,8 @@ def attach_supplement_data(dataframe, targets=DSPH_GSHEET_TARGETS):
             ),
             axis=1,
         )
+
+    return pd.DataFrame(columns)
 
 
 def get_cases(rename_dict=RENAME_DICT, val_alias=VAL_ALIAS, none_alias=NONE_ALIAS):
@@ -108,7 +110,11 @@ def get_cases(rename_dict=RENAME_DICT, val_alias=VAL_ALIAS, none_alias=NONE_ALIA
     for col in DATE_COLS:
         df_aliased[col] = df_aliased[col].apply(lambda x: fix_dates(x))
 
-    attach_supplement_data(df_aliased)
+    df_aliased[["status", "symptoms"]] = extract_supplement_data(
+        df_aliased,
+        targets=["case no.", "status", "symptoms"]
+    )
+
     return df_aliased
 
 

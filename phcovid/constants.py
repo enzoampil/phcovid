@@ -28,9 +28,3 @@ NONE_ALIAS = [
     "none",
     "",
 ]
-
-DSPH_GSHEET_TARGETS = [
-    "case no.",  # for row searching
-    "status",
-    "symptoms",
-]
