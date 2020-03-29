@@ -92,7 +92,7 @@ def get_cases(rename_dict=RENAME_DICT, val_alias=VAL_ALIAS, none_alias=NONE_ALIA
     """
     raw = extract_arcgis_data()
     df = json_normalize(raw["features"])
-    df_renamed = df.rename(columns=rename_dict)
+    df_renamed = df[rename_dict.keys()].rename(columns=rename_dict)
     df_aliased = df_renamed.replace(val_alias, "for_validation").replace(
         none_alias, "none"
     )
