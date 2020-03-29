@@ -11,6 +11,7 @@ TARGET_COLUMNS = (
     "case no.",
     "status",
     "symptoms",
+    "date of announcement to the public",
 )
 
 

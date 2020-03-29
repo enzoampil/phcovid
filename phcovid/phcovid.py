@@ -73,14 +73,17 @@ def extract_supplement_data(dataframe, targets):
     columns = {}
 
     for target in targets[1:]:
-        columns[target] = dataframe[["case_no", target]].apply(
-            lambda x: attach_target(
-                x,
-                [(d[0], d[targets.index(target)]) for d in missing],
-                ["case_no", target],
-            ),
-            axis=1,
-        )
+        if target in dataframe.columns:
+            columns[target] = dataframe[["case_no", target]].apply(
+                lambda x: attach_target(
+                    x,
+                    [(d[0], d[targets.index(target)]) for d in missing],
+                    ["case_no", target],
+                ),
+                axis=1,
+            )
+        else:
+            columns[target] = [d[targets.index(target)] for d in missing]
 
     return pd.DataFrame(columns)
 
@@ -107,13 +110,18 @@ def get_cases(rename_dict=RENAME_DICT, val_alias=VAL_ALIAS, none_alias=NONE_ALIA
         lambda x: parse_numeric(x)
     )
 
+    df_aliased[["status", "symptoms", "announcement_date"]] = extract_supplement_data(
+        df_aliased,
+        targets=[
+            "case no.",
+            "status",
+            "symptoms",
+            "date of announcement to the public",
+        ],
+    )
+
     for col in DATE_COLS:
         df_aliased[col] = df_aliased[col].apply(lambda x: fix_dates(x))
-
-    df_aliased[["status", "symptoms"]] = extract_supplement_data(
-        df_aliased,
-        targets=["case no.", "status", "symptoms"]
-    )
 
     return df_aliased
 
