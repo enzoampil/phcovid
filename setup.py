@@ -8,7 +8,7 @@ with open("requirements.txt", "r") as fh:
 
 setuptools.setup(
      name='phcovid',  
-     version='0.0.1',
+     version='0.0.2.2',
      author="Lorenzo Ampil",
      author_email="lorenzo.ampil@gmail.com",
      description="Get PH COVID data in only two lines of code!",
