@@ -7,6 +7,7 @@ from .constants import NONE_ALIAS
 from .constants import VAL_ALIAS
 from .constants import RENAME_DICT
 from .constants import DATE_COLS
+from .constants import GSHEET_TARGET_COLUMNS
 from .data_extractor import extract_arcgis_data
 from .data_extractor import extract_dsph_gsheet_data
 
@@ -44,19 +45,6 @@ def fix_dates(d):
         return np.nan
 
 
-def attach_target(current, data, headers):
-    search_res = [d for d in data if current[headers[0]] == d[0]]
-    if not len(search_res):
-        # use data from original dataset if not none
-        if current[headers[1]]:
-            return current[headers[1]]
-
-        return "none"
-
-    # use data from supplement dataset
-    return search_res[-1][1]
-
-
 def parse_numeric(s):
     """
     For use in graph analysis,
@@ -68,27 +56,33 @@ def parse_numeric(s):
     return case_list
 
 
-def extract_supplement_data(dataframe, targets):
+def supplement_data(dataframe, targets):
     missing = extract_dsph_gsheet_data(target_columns=targets)
-    columns = {}
+    supplement_ids = list(
+        set(dataframe.case_no.values).intersection(missing.case_no.values)
+    )
+    targets_set = set(targets.values())
+    existing_cols = list(targets_set.intersection(dataframe.columns))
+    new_cols = list(targets_set.difference(existing_cols))
 
-    for target in targets[1:]:
-        if target in dataframe.columns:
-            columns[target] = dataframe[["case_no", target]].apply(
-                lambda x: attach_target(
-                    x,
-                    [(d[0], d[targets.index(target)]) for d in missing],
-                    ["case_no", target],
-                ),
-                axis=1,
-            )
-        else:
-            columns[target] = [d[targets.index(target)] for d in missing]
+    # Replace target columns where gsheet data exists
+    dataframe.loc[dataframe.case_no.isin(supplement_ids), existing_cols] = missing[
+        existing_cols
+    ]
 
-    return pd.DataFrame(columns)
+    # Create new target columns
+    dataframe[new_cols] = missing[new_cols]
+
+    # Return adjusted columns
+    return dataframe
 
 
-def get_cases(rename_dict=RENAME_DICT, val_alias=VAL_ALIAS, none_alias=NONE_ALIAS):
+def get_cases(
+    rename_dict=RENAME_DICT,
+    val_alias=VAL_ALIAS,
+    none_alias=NONE_ALIAS,
+    gsheet_target_cols=GSHEET_TARGET_COLUMNS,
+):
     """
     Returns cleaned data from DOH COVID for PH
     https://www.facebook.com/notes/wilson-chua/working-with-doh-covid-data/2868993263159446/
@@ -96,8 +90,9 @@ def get_cases(rename_dict=RENAME_DICT, val_alias=VAL_ALIAS, none_alias=NONE_ALIA
     raw = extract_arcgis_data()
     df = json_normalize(raw["features"])
     df_renamed = df[rename_dict.keys()].rename(columns=rename_dict)
-    df_aliased = df_renamed.replace(val_alias, "for_validation").replace(
-        none_alias, "none"
+    df_supplemented = supplement_data(df_renamed, gsheet_target_cols)
+    df_aliased = df_supplemented.replace(val_alias, "for_validation").replace(
+        none_alias, np.nan
     )
     df_aliased[["contacts", "num_contacts"]] = extract_contact_info(
         df_aliased.travel_history
@@ -108,16 +103,6 @@ def get_cases(rename_dict=RENAME_DICT, val_alias=VAL_ALIAS, none_alias=NONE_ALIA
     )
     df_aliased["contacts_num"] = df_aliased["contacts"].apply(
         lambda x: parse_numeric(x)
-    )
-
-    df_aliased[["status", "symptoms", "announcement_date"]] = extract_supplement_data(
-        df_aliased,
-        targets=[
-            "case no.",
-            "status",
-            "symptoms",
-            "date of announcement to the public",
-        ],
     )
 
     for col in DATE_COLS:

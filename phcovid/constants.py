@@ -15,6 +15,15 @@ RENAME_DICT = {
     "attributes.petsa": "date",
 }
 
+
+# Mapping between gsheet column names to be added and their corresponding name in the final dataframe
+GSHEET_TARGET_COLUMNS = {
+    "status": "status",
+    "symptoms": "symptoms",
+    "date of announcement to the public": "announcement_date",
+}
+
+
 DATE_COLS = ["confirmation_date", "date", "announcement_date"]
 
 VAL_ALIAS = [
