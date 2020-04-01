@@ -1,4 +1,4 @@
-from pandas.io.json import json_normalize
+from pandas import json_normalize
 import re
 import pandas as pd
 import numpy as np
@@ -58,6 +58,25 @@ def parse_numeric(s):
 
 def supplement_data(dataframe, targets):
     missing = extract_dsph_gsheet_data(target_columns=targets)
+
+    for df_ in [dataframe, missing]:
+        df_["case_no"] = (
+            df_["case_no"].apply(lambda x: x.split("H")[-1]).astype(int)
+        )
+
+    # Make sure both dataframe and missing are sorted based on `case_no`
+    dataframe = dataframe.sort_values(by='case_no', ascending=True)
+    missing = missing.sort_values(by='case_no', ascending=True)
+
+    # Create new rows in the dataframe for the missing ids
+    missing_ids_diff = list(set(missing.case_no.values).difference(dataframe.case_no.values))
+    df_missing_ids = pd.DataFrame(np.nan, index=range(len(missing_ids_diff)), columns=dataframe.columns)
+    df_missing_ids['case_no'] = missing_ids_diff
+
+    # Add new rows to the dataframe
+    dataframe = pd.concat([dataframe, df_missing_ids]).sort_values(by='case_no').reset_index(drop=True)
+
+    # We supplement each of the common rows (all should be common now from the above step)
     supplement_ids = list(
         set(dataframe.case_no.values).intersection(missing.case_no.values)
     )
@@ -98,9 +117,6 @@ def get_cases(
         df_aliased.travel_history
     )
 
-    df_aliased["case_no_num"] = (
-        df_aliased["case_no"].apply(lambda x: x.split("H")[-1]).astype(int)
-    )
     df_aliased["contacts_num"] = df_aliased["contacts"].apply(
         lambda x: parse_numeric(x)
     )
