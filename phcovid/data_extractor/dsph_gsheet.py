@@ -1,4 +1,5 @@
 import re
+import pandas as pd
 
 URL = (
     "https://docs.google.com"
@@ -7,12 +8,7 @@ URL = (
     "/htmlview"
 )
 
-TARGET_COLUMNS = (
-    "case no.",
-    "status",
-    "symptoms",
-    "date of announcement to the public",
-)
+GSHEET_ID = {"case no.": "case_no"}
 
 
 def _extract_by_targets(headers, data, targets):
@@ -60,7 +56,10 @@ def _clean_html(soup_data=None, headers=None, valid_idx=[]):
     return output
 
 
-def extract_dsph_gsheet_data(target_columns=TARGET_COLUMNS):
+def extract_dsph_gsheet_data(target_columns):
+    """
+    Returns google sheets worksheet in pd.DataFrame format
+    """
     from urllib.request import urlopen
     from bs4 import BeautifulSoup
 
@@ -73,6 +72,9 @@ def extract_dsph_gsheet_data(target_columns=TARGET_COLUMNS):
     # select table rows
     rows = soup.select("tbody > tr")
     headers = _clean_html(headers=rows[0])
-    data = _extract_by_targets(headers, rows[1:], targets=target_columns)
+    id_targets = list(GSHEET_ID.keys()) + list(target_columns.keys())
+    data = _extract_by_targets(headers, rows[1:], targets=id_targets)
+    id_targets_standard = list(GSHEET_ID.values()) + list(target_columns.values())
+    df = pd.DataFrame(data, columns=id_targets_standard)
 
-    return data
+    return df

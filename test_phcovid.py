@@ -1,6 +1,7 @@
 from pandas import DataFrame
 from phcovid import get_case_network
 from phcovid import get_cases
+from phcovid.constants import GSHEET_TARGET_COLUMNS
 
 
 def test_get_cases():
@@ -23,4 +24,6 @@ def test_arcgis_extract():
 def test_dsph_gsheet_extraction():
     from phcovid.data_extractor import extract_dsph_gsheet_data
 
-    assert extract_dsph_gsheet_data() != []
+    assert isinstance(
+        extract_dsph_gsheet_data(target_columns=GSHEET_TARGET_COLUMNS), DataFrame
+    )
