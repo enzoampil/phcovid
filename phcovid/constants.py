@@ -27,7 +27,7 @@ GSHEET_TARGET_COLUMNS = {
     "residence in the philippines": "residence",
     "date of lab confirmation": "confirmation_date",
     "admission / consultation": "facility",
-    "date of final status (recovered/expired)": "final_status_date"
+    "date of final status (recovered/expired)": "final_status_date",
 }
 
 
