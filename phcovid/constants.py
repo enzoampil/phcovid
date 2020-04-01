@@ -31,7 +31,7 @@ GSHEET_TARGET_COLUMNS = {
 }
 
 
-DATE_COLS = ["confirmation_date", "date", "announcement_date"]
+DATE_COLS = ["confirmation_date", "date", "announcement_date", "final_status_date"]
 
 VAL_ALIAS = [
     "For validation",
