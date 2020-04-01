@@ -46,9 +46,9 @@ def get_case_network(df, contact_col="contacts_num", case_no_col="case_no_num"):
     case_graph = get_case_graph(df, contact_col, case_no_col)
 
     case_cnt = len(df)
-    visited = [False for i in range(1, max(case_graph.keys())+2)]
-    visited_pre = [False for i in range(1, max(case_graph.keys())+2)]
-    parent = [-1 for i in range(1, max(case_graph.keys())+2)]
+    visited = [False for i in range(1, max(case_graph.keys()) + 2)]
+    visited_pre = [False for i in range(1, max(case_graph.keys()) + 2)]
+    parent = [-1 for i in range(1, max(case_graph.keys()) + 2)]
 
     def dfs(v, g):
         visited[v] = True
