@@ -21,6 +21,13 @@ GSHEET_TARGET_COLUMNS = {
     "status": "status",
     "symptoms": "symptoms",
     "date of announcement to the public": "announcement_date",
+    "sex": "sex",
+    "age": "age",
+    "nationality": "nationality",
+    "residence in the philippines": "residence",
+    "date of lab confirmation": "confirmation_date",
+    "admission / consultation": "facility",
+    "date of final status (recovered/expired)": "final_status_date"
 }
 
 
