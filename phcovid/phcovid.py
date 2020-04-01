@@ -60,7 +60,9 @@ def supplement_data(dataframe, targets):
     missing = extract_dsph_gsheet_data(target_columns=targets)
 
     for df_ in [dataframe, missing]:
-        df_["case_no_num"] = df_["case_no"].apply(lambda x: x.split("H")[-1]).astype(int)
+        df_["case_no_num"] = (
+            df_["case_no"].apply(lambda x: x.split("H")[-1]).astype(int)
+        )
 
     # Make sure both dataframe and missing are sorted based on `case_no`
     dataframe = dataframe.sort_values(by="case_no_num", ascending=True)
