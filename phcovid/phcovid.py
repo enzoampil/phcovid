@@ -2,6 +2,7 @@ from pandas import json_normalize
 import re
 import pandas as pd
 import numpy as np
+from urllib.error import HTTPError
 
 from .constants import NONE_ALIAS
 from .constants import VAL_ALIAS
@@ -117,10 +118,16 @@ def get_cases(
     raw = extract_arcgis_data()
     df = json_normalize(raw["features"])
     df_renamed = df[rename_dict.keys()].rename(columns=rename_dict)
-    df_supplemented = supplement_data(df_renamed, gsheet_target_cols)
-    df_aliased = df_supplemented.replace(val_alias, "for_validation").replace(
-        none_alias, np.nan
-    )
+
+    try:
+        df_supplemented = supplement_data(df_renamed, gsheet_target_cols)
+        df_aliased = df_supplemented.replace(val_alias, "for_validation").replace(
+            none_alias, np.nan
+        )
+    except (ValueError, KeyError, IndexError, HTTPError):
+        # ignore if extract from datasheet fails
+        df_aliased = df_renamed
+
     df_aliased[["contacts", "num_contacts"]] = extract_contact_info(
         df_aliased.travel_history
     )
@@ -130,6 +137,9 @@ def get_cases(
     )
 
     for col in DATE_COLS:
+        if col not in df_aliased.columns:
+            continue
+
         df_aliased[col] = df_aliased[col].apply(lambda x: fix_dates(x))
 
     return df_aliased
