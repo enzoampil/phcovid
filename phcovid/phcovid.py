@@ -62,7 +62,7 @@ def supplement_data(dataframe, targets):
 
     for df_ in [dataframe, missing]:
         df_["case_no_num"] = (
-            df_["case_no"].apply(lambda x: x.split("H")[-1]).astype(int)
+            df_["case_no"].apply(lambda x: x.split("H")[-1]).astype(np.uint64)
         )
 
     # Make sure both dataframe and missing are sorted based on `case_no`
@@ -135,6 +135,9 @@ def get_cases(
     df_aliased["contacts_num"] = df_aliased["contacts"].apply(
         lambda x: parse_numeric(x)
     )
+
+    df_aliased["age"] = df_aliased["age"].astype(np.uint8)
+    df_aliased["sex"] = df_aliased["sex"].astype("category")
 
     for col in DATE_COLS:
         if col not in df_aliased.columns:
