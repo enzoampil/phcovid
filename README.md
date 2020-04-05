@@ -8,7 +8,7 @@ A `Python` library that allows extraction of pre-processed data for COVID-19 in 
 
 ## Get PH COVID data in only two lines of code!
 
-Using `phcovid` is as simple is importing it and calling `get_cases`!
+Using `phcovid` is as simple as importing it and calling `get_cases`!
 
 ```python
 from phcovid import get_cases
