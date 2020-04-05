@@ -4,7 +4,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 
 
-def get_case_plot(df, date_col="confirmation_date", start_date=None):
+def get_case_plot(df, date_col="announcement_date", start_date=None):
     """
     This function a.) plots the growth of cases in the given df
     and prints the date of first and latest confirmed case.

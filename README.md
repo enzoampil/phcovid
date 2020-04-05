@@ -95,7 +95,7 @@ df = get_cases()
 get_case_plot(df)
 ```
 
-By default, the plot will be created from the `confirmation_date` column. This can be changed through `date_col` parameter.
+By default, the plot will be created from the `announcement_date` column. This can be changed through `date_col` parameter.
 
 ```python
 get_case_plot(df, date_col="new_col_to_plot")
