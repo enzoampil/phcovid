@@ -121,7 +121,7 @@ def get_cases(
 
     try:
         df_supplemented = supplement_data(df_renamed, gsheet_target_cols)
-        df_aliased = df_supplemented.replace(val_alias, "for_validation").replace(
+        df_aliased = df_supplemented.replace(val_alias, np.nan).replace(
             none_alias, np.nan
         )
     except (ValueError, KeyError, IndexError, HTTPError):
@@ -136,7 +136,7 @@ def get_cases(
         lambda x: parse_numeric(x)
     )
 
-    df_aliased["age"] = df_aliased["age"].astype(np.uint8)
+    df_aliased["age"] = df_aliased["age"].astype('Int64')
     df_aliased["sex"] = df_aliased["sex"].astype("category")
 
     for col in DATE_COLS:
