@@ -136,7 +136,7 @@ def get_cases(
         lambda x: parse_numeric(x)
     )
 
-    df_aliased["age"] = df_aliased["age"].astype('Int64')
+    df_aliased["age"] = df_aliased["age"].astype(int)
     df_aliased["sex"] = df_aliased["sex"].astype("category")
 
     for col in DATE_COLS:
