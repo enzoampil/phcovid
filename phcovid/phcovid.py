@@ -61,12 +61,18 @@ def supplement_data(dataframe, targets):
     missing = extract_dsph_gsheet_data(target_columns=targets)
 
     for df_ in [dataframe, missing]:
-        df_["case_no_num"] = (
-            df_["case_no"].apply(lambda x: x.split("H")[-1]).astype(np.uint64)
-        )
+        if "case_no" in df_.columns:
+            df_["case_no_num"] = (
+                df_["case_no"].apply(lambda x: x.split("C")[-1]).astype(np.uint64)
+            )
 
     # Make sure both dataframe and missing are sorted based on `case_no`
-    dataframe = dataframe.sort_values(by="case_no_num", ascending=True)
+    if len(dataframe):
+        dataframe = dataframe.sort_values(by="case_no_num", ascending=True)
+    else:
+        dataframe[["case_no", "case_no_num"]] = missing[["case_no", "case_no_num"]]
+        dataframe = dataframe.sort_values(by="case_no_num", ascending=True)
+
     missing = missing.sort_values(by="case_no_num", ascending=True)
 
     # Create new rows in the dataframe for the missing ids
@@ -116,8 +122,11 @@ def get_cases(
     https://www.facebook.com/notes/wilson-chua/working-with-doh-covid-data/2868993263159446/
     """
     raw = extract_arcgis_data()
-    df = json_normalize(raw["features"])
-    df_renamed = df[rename_dict.keys()].rename(columns=rename_dict)
+    df_renamed = pd.DataFrame()
+
+    if len(raw):
+        df = json_normalize(raw["features"])
+        df_renamed = df[rename_dict.keys()].rename(columns=rename_dict)
 
     try:
         df_supplemented = supplement_data(df_renamed, gsheet_target_cols)
@@ -128,15 +137,21 @@ def get_cases(
         # ignore if extract from datasheet fails
         df_aliased = df_renamed
 
-    df_aliased[["contacts", "num_contacts"]] = extract_contact_info(
-        df_aliased.travel_history
-    )
+    if getattr(df_aliased, "contacts", None):
+        if (
+            getattr(df_aliased, "travel_history", None)
+            and getattr(df_aliased, "num_contacts", None)
+        ):
+            df_aliased[["contacts", "num_contacts"]] = extract_contact_info(
+                df_aliased.travel_history
+            )
 
-    df_aliased["contacts_num"] = df_aliased["contacts"].apply(
-        lambda x: parse_numeric(x)
-    )
+        if getattr(df_aliased, "contacts_num", None):
+            df_aliased["contacts_num"] = df_aliased["contacts"].apply(
+                lambda x: parse_numeric(x)
+            )
 
-    df_aliased["age"] = df_aliased["age"].astype(int)
+    df_aliased["age"] = df_aliased["age"].replace(np.nan, -1).astype(int)
     df_aliased["sex"] = df_aliased["sex"].astype("category")
 
     for col in DATE_COLS:

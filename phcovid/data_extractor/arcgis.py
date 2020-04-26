@@ -5,4 +5,8 @@ def extract_arcgis_data():
     import json
     from urllib.request import urlopen
 
-    return json.loads(urlopen(URL).read())
+    out = json.loads(urlopen(URL).read())
+    if "error" in out:
+        return []
+
+    return out

@@ -18,20 +18,23 @@ RENAME_DICT = {
 
 # Mapping between gsheet column names to be added and their corresponding name in the final dataframe
 GSHEET_TARGET_COLUMNS = {
-    "status": "status",
-    "symptoms": "symptoms",
-    "date of announcement to the public": "announcement_date",
-    "sex": "sex",
     "age": "age",
-    "nationality": "nationality",
-    "residence in the philippines": "residence",
-    "date of lab confirmation": "confirmation_date",
-    "admission / consultation": "facility",
-    "date of final status (recovered/expired)": "final_status_date",
+    "sex": "sex",
+    "location": "residence",
+    "daterepconf": "confirmation_date",
+    "latitude": "latitude",
+    "longitude": "longitude",
+    "removaltype": "status",
+    "datereprem": "date",
 }
 
 
-DATE_COLS = ["confirmation_date", "date", "announcement_date", "final_status_date"]
+DATE_COLS = [
+    "confirmation_date",
+    "date",
+    "announcement_date",
+    "final_status_date",
+]
 
 VAL_ALIAS = [
     "For validation",
