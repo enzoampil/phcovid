@@ -128,17 +128,14 @@ def get_cases(
         df = json_normalize(raw["features"])
         df_renamed = df[rename_dict.keys()].rename(columns=rename_dict)
 
-    # try:
-    df_supplemented = supplement_data(df_renamed, gsheet_target_cols)
-    df_aliased = df_supplemented.replace(val_alias, np.nan).replace(
-        none_alias, np.nan
-    )
-    # except (ValueError, KeyError, IndexError, HTTPError) as e:
-    #     print(e)
-    #     # ignore if extract from datasheet fails
-    #     df_aliased = df_renamed
-
-    print(df_aliased)
+    try:
+        df_supplemented = supplement_data(df_renamed, gsheet_target_cols)
+        df_aliased = df_supplemented.replace(val_alias, np.nan).replace(
+            none_alias, np.nan
+        )
+    except (ValueError, KeyError, IndexError, HTTPError):
+        # ignore if extract from datasheet fails
+        df_aliased = df_renamed
 
     if getattr(df_aliased, "contacts", None):
         if (

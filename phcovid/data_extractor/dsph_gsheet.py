@@ -72,20 +72,12 @@ def extract_dsph_gsheet_data(target_columns):
     # select table rows
     rows = soup.select("tbody > tr")
     headers = _clean_html(headers=rows[0])
-
     id_targets = list(GSHEET_ID.keys()) + list(target_columns.keys())
-    # id_targets = list(set(id_targets))
-
-    # print(headers, id_targets)
     data = _extract_by_targets(headers, rows[1:], targets=id_targets)
     id_targets_standard = (
         list(GSHEET_ID.values())
         + list(target_columns.values())
     )
-    # id_targets_standard = list(set(id_targets_standard))
-    # print(id_targets_standard)
     df = pd.DataFrame(data, columns=id_targets_standard)
-
-    print(df)
 
     return df
