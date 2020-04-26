@@ -18,7 +18,6 @@ RENAME_DICT = {
 
 # Mapping between gsheet column names to be added and their corresponding name in the final dataframe
 GSHEET_TARGET_COLUMNS = {
-    # "casecode": "case_no",
     "age": "age",
     "sex": "sex",
     "location": "residence",
@@ -30,7 +29,12 @@ GSHEET_TARGET_COLUMNS = {
 }
 
 
-DATE_COLS = ["confirmation_date", "date", "announcement_date", "final_status_date"]
+DATE_COLS = [
+    "confirmation_date",
+    "date",
+    "announcement_date",
+    "final_status_date",
+]
 
 VAL_ALIAS = [
     "For validation",
